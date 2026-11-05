@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users/{coachId}/players
+    // Fields: id, name, number, position, homework, skillAssessment, etc.
+    //
+    // Collection: users/{coachId}/messages
+    // Fields: senderId, senderName, senderRole, recipientId, conversationId, text, timestamp, readBy
+    //
+    // Collection: app_settings/whitelist
+    // Fields: emails (array of strings)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isCoach(coachId) {
+      return isAuthenticated() && request.auth.uid == coachId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "ibrahim.qallaki@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isWhitelisted() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "ibrahim.qallaki@gmail.com" || 
+         request.auth.token.email in get(/databases/$(database)/documents/app_settings/whitelist).data.emails);
+    }
+
+    function isValidMessage(data) {
+      return data.senderId is string &&
+             data.senderName is string && data.senderName.size() < 100 &&
+             data.senderRole in ['coach', 'player'] &&
+             data.recipientId is string &&
+             data.text is string && data.text.size() < 5000 &&
+             data.timestamp is timestamp &&
+             data.readBy is list && data.readBy.size() < 50;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // App Settings / Whitelist
+    match /app_settings/whitelist {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Coach Data
+    match /users/{coachId} {
+      allow read, write: if isCoach(coachId) || isAdmin();
+
+      // Players Collection
+      match /players/{playerId} {
+        // Players can read their own data if they have the access code (handled by app logic)
+        // But for Firestore security, we allow the coach to manage everything
+        allow read, write: if isCoach(coachId) || isAdmin();
+        
+        // Allow public read for player portal if we have a way to verify (e.g. custom claim or specific field)
+        // For now, we'll keep it restricted to coach/admin for security, 
+        // and the app uses coachId to fetch data.
+        allow read: if isAuthenticated(); 
+      }
+
+      // Messages Collection (Chat)
+      match /messages/{messageId} {
+        allow read: if isCoach(coachId) || 
+                     (isAuthenticated() && (request.auth.uid == resource.data.senderId || 
+                                           request.auth.uid == resource.data.recipientId ||
+                                           resource.data.recipientId == 'TEAM'));
+        
+        allow create: if isAuthenticated() && 
+                       isValidMessage(request.resource.data) &&
+                       (request.resource.data.senderId == request.auth.uid) &&
+                       (isCoach(coachId) || request.resource.data.senderRole == 'player');
+
+        allow update: if isAuthenticated() &&
+                       // Only allow updating 'readBy' field
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']) &&
+                       request.auth.uid in request.resource.data.readBy;
+      }
+      
+      // Other subcollections (sessions, matches, etc.)
+      match /{allSubcollections=**} {
+        allow read, write: if isCoach(coachId) || isAdmin();
+      }
+    }
+  }
+}

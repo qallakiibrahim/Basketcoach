@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketcoach Pro | Säsong 25/26</title>
+    
+    <!-- Webbstandard favicon-pixel för att undvika 404 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏀</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        window.process = window.process || { env: { NODE_ENV: 'development' } };
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('Runtime Error:', msg, url, line);
+            return false;
+        };
+    </script>
+</head>
+<body class="bg-[#020617] text-[#f8fafc] antialiased">
+    <div id="root">
+        <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; background: radial-gradient(circle at top, #1e293b 0%, #020617 100%);">
+            <div style="margin-bottom: 2rem; font-size: 4rem; animation: pulse 2s infinite;">🏀</div>
+            <h1 style="font-size: 1.5rem; font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase; font-style: italic; margin-bottom: 0.5rem;">Basketcoach Pro</h1>
+            <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #f97316; opacity: 0.8;">Laddar Intelligence...</p>
+        </div>
+    </div>
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+    <script type="module" src="./index.tsx"></script>
+</body>
+</html>

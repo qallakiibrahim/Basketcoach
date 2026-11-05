@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "A player in the basketball team",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "number": { "type": "number" },
+        "position": { "type": "string" },
+        "homework": { "type": "array" },
+        "skillAssessment": { "type": "object" }
+      },
+      "required": ["id", "name", "number"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A message in the chat",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderRole": { "type": "string", "enum": ["coach", "player"] },
+        "recipientId": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "readBy": { "type": "array" }
+      },
+      "required": ["senderId", "senderName", "senderRole", "recipientId", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{coachId}/players": {
+      "schema": "Player",
+      "description": "Players managed by a coach"
+    },
+    "/users/{coachId}/messages": {
+      "schema": "ChatMessage",
+      "description": "Chat messages for a coach's team"
+    },
+    "/app_settings/whitelist": {
+      "schema": { "type": "object", "properties": { "emails": { "type": "array" } } },
+      "description": "Whitelisted coach emails"
+    }
+  }
+}

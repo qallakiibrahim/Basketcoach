@@ -1,0 +1,11 @@
+{
+  "name": "Basketcoach Pro",
+  "description": "Pedagogisk plattform för långsiktig spelarutveckling och rättvis bedömning inom ungdomsbasket.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
